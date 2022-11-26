@@ -1,7 +1,7 @@
 import React from 'react'
 import forge from 'node-forge'
 import rsaPemToJwk from 'rsa-pem-to-jwk'
-import p120pem from 'p12-pem'
+import crypto from 'crypto'
 
 
 // import fs from 'fs'
@@ -21,7 +21,7 @@ function leerArchivo(e) {
 	var lector = new FileReader();
 	lector.onload = function (e) {
 
-		console.log(password);
+		// console.log(password);
 		var contenido = e.target.result;
 		var p12Asn1 = forge.asn1.fromDer(contenido, false);
 		var pkcs12 = null;
@@ -65,26 +65,26 @@ function leerArchivo(e) {
 			var entry = map[localKeyId];
 			if (entry.privateKey) {
 				var privateKeyP12Pem = forge.pki.privateKeyToPem(entry.privateKey);
-				privateKeyP12Pem = privateKeyP12Pem.replace('\r\n', '\n')
 				// privateKeyP12Pem += '\n';
-				console.log(privateKeyP12Pem);
-				var jwk = rsaPemToJwk(privateKeyP12Pem, { use: 'sig' }, 'public');
+				// console.log(privateKeyP12Pem);
+				// var jwk = rsaPemToJwk(privateKeyP12Pem, { use: 'sig' }, 'public');
 			
-				console.log(jwk);
+				// console.log(jwk);
+
+				var privJwk = crypto.createPrivateKey(privateKeyP12Pem).export({format: 'jwk'});
+				// console.log(privJwk);
 				mostrarContenido(privateKeyP12Pem);
 				
 				// const jwk = rsaPemToJwk(privateKeyP12Pem);
-			} else {
-				console.log('');
 			}
 			if (entry.certChain.length > 0) {
 				var certChain = entry.certChain;
 				var certifcados = "";
 				for (var i = 0; i < certChain.length; ++i) {
 					var certP12Pem = forge.pki.certificateToPem(certChain[i]);
-					// const x509 = new crypto.X509Certificate(certP12Pem);
-					// const value = x509.subject
-					// console.log("subject :- " + value)
+					const x509 = new X509Certificate(certP12Pem);
+					const value = x509.subject
+					// console.log("subject :- ")
 					certifcados += '\n';
 					certifcados += certP12Pem;
 				}
